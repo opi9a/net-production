@@ -1,5 +1,6 @@
 import pandas as pd
-from netprod.funcs import *
+from netprod.core_funcs import *
+from netprod.aux_funcs import *
 
 # Read in the reference data to an object 
 
