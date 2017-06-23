@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 26 16:04:03 2017
-
-@author: GRoberta
+Running this 
 """
 
 from openpyxl import load_workbook
 import pandas as pd
 
-def get_coeffs(wb, names_list):
+def get_coeffs(wb):
     '''Returns a dictionary with data from named ranges specified by names_list
     from the xls passed as wb'''
 
-    # First load up the data - all named ranges    
+    # First get the names from the target sheet. 
+    # wb.defined_names is an object that has this info.
+    # Probably a better way than this to extract names but hey
+    names_list = [x.split(",")[0][1:].split("'")[0] 
+                    for x in str(wb.defined_names).split('name=')
+                    if "xlnm" not in x][1:]
+
+    # Now load up the data - all named ranges    
     raw_dict = {}
     for name in names_list:
         raw_dict[name] = list(wb.defined_names[name].destinations)[0]
@@ -29,7 +34,7 @@ def get_coeffs(wb, names_list):
             for cell in ws[rng]:
                 vals.append(cell[0].value)
         else:
-            vals.append(cell[0].value)
+            vals.append(ws[rng].value)
         
         coeffs[coeff] = vals
     
@@ -50,16 +55,10 @@ def make_pdseries(in_dict):
 if __name__=='__main__':
     # USAGE
     # First load in the workbook (data only, i.e. not formulas)
-    wb = load_workbook('data/wsi_v0.1.31.xlsx', data_only=True)
-    
-    # Make the list of coefficient sets - must be the same as in the xls
-    names_list = ['Prod_MCS_coeffs',
-                  'Prod_PCS_coeffs',
-                  'Prod_prod_coeffs',
-                  'Prod_wagepcm_M_byage',
-                  'Prod_wagepcm_F_byage',
-                  'on_costs']
+    import sys
+    sys.argv[1]='target'
+    wb = load_workbook('target', data_only=True)
     
     # Finally run it
-    coeff_ser = make_pdseries(get_coeffs(wb, names_list))
+    coeff_ser = make_pdseries(get_coeffs(wb))
     
