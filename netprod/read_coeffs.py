@@ -24,8 +24,7 @@ def get_coeffs(wb):
 
     # Now put them in a dictionary
     coeffs = {}
-    for coeff in raw_dict: #must be more elegant way to iterate thru this dictionary
-        sheet, rng = raw_dict[coeff]
+    for sheet, rng in raw_dict: 
         ws = wb[sheet]
         vals = []
 
